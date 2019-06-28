@@ -29,7 +29,7 @@ def get_variable_types(df):
         elif re.search('^ob_',var_name):
             types["target"] = var_name
         else:
-            print ("ERROR: unable to identify the type of:", var_name)
+            print ("WARNING: unable to identify the type of:", var_name)
 
     return types
  
@@ -54,12 +54,16 @@ def gini_score(obs, pred):
 
 def send_submission(filename, preds):
     url = 'http://mfalonso.pythonanywhere.com/api/v1.0/uploadpredictions'
+    filename = "submissions/{}".format(filename)
+    
     to_submit = pd.DataFrame(dict(id=pd.read_csv("input/oot0.csv")["id"],
                                   pred=preds))
     
     to_submit.to_csv(filename, sep=',')
     
-    files = {'file': (filename, open(filename, 'rb'))}
+    f = open(filename, 'rb')
+    
+    files = {'file': (filename, f)}
     
     with open("input/python_anywhere_pass.secret", 'r') as f:
         pw = f.read().strip()
@@ -72,6 +76,8 @@ def send_submission(filename, preds):
     resp_str = str(rsub.text)
     
     print ("RESULT SUBMISSION: ", resp_str)
+    
+    f.close()
 
     
 
