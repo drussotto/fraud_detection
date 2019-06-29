@@ -96,29 +96,32 @@ from sklearn.metrics import roc_auc_score
 gini_score = 2*roc_auc_score(df[output_var], y_pred)-1
 print ("GINI DEVELOPMENT=", gini_score)
 
-def KS2(b,a):  #b = good and bad, a = prediction
+def KS(b,a):  
+    """Function that received two parameters; first: a binary variable representing 0=good and 1=bad, 
+    and then a second variable with the prediction of the first variable, the second variable can be continuous, 
+    integer or binary - continuous is better. Finally, the function returns the KS Statistics of the two lists."""
     try:
-        tot_bads=1.0*sum(b)
-        tot_goods=1.0*(len(b)-tot_bads)
         tot_bads=1.0*sum(b)
         tot_goods=1.0*(len(b)-tot_bads)
         elements = zip(*[a,b])
         elements = sorted(elements,key= lambda x: x[0])
         elements_df = pd.DataFrame({'probability': b,'gbi': a})
         pivot_elements_df = pd.pivot_table(elements_df, values='probability', index=['gbi'], aggfunc=[sum,len]).fillna(0)
-        max_ks2 = perc_goods = perc_bads = cum_perc_bads = cum_perc_goods = 0
+        max_ks = perc_goods = perc_bads = cum_perc_bads = cum_perc_goods = 0
         for i in range(len(pivot_elements_df)):
             perc_goods =  (pivot_elements_df.iloc[i]['len'] - pivot_elements_df.iloc[i]['sum']) / tot_goods
             perc_bads = pivot_elements_df.iloc[i]['sum']/ tot_bads
             cum_perc_goods += perc_goods
             cum_perc_bads += perc_bads
-            if abs(cum_perc_bads-cum_perc_goods) > max_ks2:
-                max_ks2 = abs(cum_perc_bads-cum_perc_goods)
+            A = cum_perc_bads-cum_perc_goods
+            if abs(A['probability']) > max_ks:
+                max_ks = abs(A['probability'])
     except:
-        max_ks2 = 0
-    return max_ks2
+        max_ks = 0
+    return max_ks
 
-KS_score = KS2(df[output_var],y_pred)
+
+KS_score = KS(df[output_var],y_pred)
 print ("KS DEVELOPMENT=", KS_score) 
 
 print ("STEP 5: SUBMITTING THE RESULTS...")

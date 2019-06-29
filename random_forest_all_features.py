@@ -14,4 +14,4 @@ model.fit(train.drop(TARGET, axis=1), train[TARGET])
 preds = model.predict_proba(impute_nas(test))[:,1]
 
 
-send_submission("rf_all_vars.csv", preds)        
+result = send_submission("rf_all_vars.csv", preds)        
