@@ -168,5 +168,17 @@ def perform_rfe(model, train, test, filename, to_remove=None):
     
     return results
     
+def save_hyperparameters(params, results, filename, create_file):
+    ks2, gini, grade = retrieve_scores(results)
     
+    new_row = pd.DataFrame(dict(ks2=[ks2], gini=[gini],
+                             grade=[grade], params=[params]))
     
+    if create_file:
+        new_row.to_csv(filename, index=False)
+        return new_row
+    else:
+        acc = pd.read_csv(filename)
+        new_results = pd.concat([acc, new_row],ignore_index=True)
+        new_results.to_csv(filename, index=False)
+        return new_results
